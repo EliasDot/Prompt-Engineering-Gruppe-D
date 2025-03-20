@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>WebEng: Prompt Engineering</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/white.css" id="theme">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+	<style>
+		header {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+		}
+
+		.prompts {
+			width: 100%;
+			min-height: 400px;
+		}
+
+		iframe {
+			background-color: white;
+			width: 100%;
+			min-height: 400px;
+			border: 2px solid grey;
+		}
+
+		#llmresults td {
+            text-align: center;
+        }
+
+		@media print {
+			.toggleDarkmode {
+				display: none;
+			}
+		}
+	</style>
+</head>
+
+<!--
+	PDF-Export (/?view=print, https://revealjs.com/pdf-export/)
+	WebEng_Prompt-Engineering
+-->
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>Prompt Engineering</h1>
+
+				<p>
+					aka. die Pandemie nach der Pandemie
+				</p>
+			</section>
+			<section>
+				<h2>Prompt Engineering</h2>
+
+				<blockquote cite="https://en.wikipedia.org/wiki/Prompt_engineering">
+					<p>[...] is the process of structuring or crafting an instruction in order to produce the best
+						possible output from a generative artificial intelligence (AI) model.</p>
+				</blockquote>
+
+				<p>—Wikipedia, <a href="https://en.wikipedia.org/wiki/Prompt_engineering"><cite>Prompt
+							Engineering</cite></a></p>
+			</section>
+			<section>
+				<section>
+					<h2>Gruppenarbeit</h2>
+					<p>
+						Ziele:
+					</p>
+					<ul>
+						<li>Stärken und Schwächen von Large&nbsp;Language&nbsp;Models erkunden und dokumentieren</li>
+						<li>Hands-On Erfahrung mit LLMs sammeln</li>
+						<li>Den "besten" Prompt um die Aufgabe zu lösen finden</li>
+						<li class="fragment">Zehn(!) Zusatzpunkte (von 100) für die<br>Klausur (im 2.&nbsp;Semester) mitnehmen
+						</li>
+					</ul>
+					<p>Jede Gruppe arbeitet mit einem LLM<br>(<a href="https://chatgpt.com/">ChatGPT</a> (o3, o4); <a href="https://www.deepseek.com/">DeepSeek</a>; <a href="https://mistral.ai/en">Mistral AI</a>; <a href="https://www.llama.com/">Llama</a>; <a href="https://v0.dev/">v0</a>)</p>
+				</section>
+				<section>
+					<h2>Gruppenarbeit</h2>
+					<ul>
+						<li>Teams: 2-4 Studenten, dokumentiert in Moodle</li>
+						<li>Abgabe als Merge-Request in Gitlab</li>
+						<li>Sowohl Prompt als auch die generierten <a href="https://gitlab.com/chr1shaefn3r-dhbw/vorlesung-webeng1/-/tree/master/TINF24B2/prompt-engineering/ergebnisse/">Ergebnisse</a></li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Aufgabe</h2>
+					<p>Erstellen einer Website<span class="fragment">, <a
+								href="https://youtu.be/DyDfgMOUjCI?feature=shared&t=72">duh</a></span></p>
+					<ul>
+						<li>nur Frontend (HTML, CSS, JavaScript)</li>
+						<li>keine Persistenz</li>
+						<li>Kanban-Board</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Aufgabe</h2>
+					<p>Quelle: <a
+							href="https://vorlagen.melitia-roth.de/data/kanban-board-vorlage-2.jpg">vorlagen.melitia-roth.de</a>
+					</p>
+					<img height="450" src="./images/kanban-board-vorlage-2.jpg" alt="Kanban-Board">
+				</section>
+				<section>
+					<h2>Aufgabe</h2>
+					<p>Kanban-Board mit:</p>
+					<ul>
+						<li>Drei Spalten: "ToDo", "In Progress", "Done"</li>
+						<li>Drei Karten-Arten:<br>"Bug"&nbsp;(rot), "User&nbsp;Story"&nbsp;(gr&uuml;n),
+							"Task"&nbsp;(blau)</li>
+						<li>Zwei Karten-Eigenschaften: Titel, Beschreibung, Arbeitspacketgr&ouml;&szlig;e in Stunden
+						</li>
+						<li>Erstellen und l&ouml;schen von Karten</li>
+						<li>Verschieben von Karten per Drag&Drop</li>
+						<li>Responsive Layout/Design</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<h2>LLM/Prompt Qualit&auml;tskriterien</h2>
+				<p>Einordnung der LLMs,<br>nicht(!) die Bewertung eurer Arbeit</p>
+				<ul>
+					<li>Semantisches HTML</li>
+					<li>Valides HTML (<a href="https://validator.w3.org">validator.w3.org</a>)</li>
+					<li>Modernes JavaScript (kein var, etc.)</li>
+					<li>Clean Code</li>
+					<li>Drag&Drop Feedback (Dropzones hervorheben, etc.)</li>
+					<li>minimale L&ouml;sung (kein Framework, keine Umwege)</li>
+					<li>Responsive Design (Handy, Tablet, Desktop)</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Bewertungskriterien</h2>
+				<p>die Bewertung eurer Arbeit</p>
+				<ul>
+					<li>2&emsp;&mdash;&emsp;alle Qualit&auml;tskriterien erf&uuml;llt</li>
+					<li>4&emsp;&mdash;&emsp;Merge-Request erstellt</li>
+					<li>2&emsp;&mdash;&emsp;Ergebnisse vollst&auml;ndig im Merge-Request dokumentiert</li>
+					<li>2&emsp;&mdash;&emsp;Vorstellung der Ergebnisse in der Vorlesung (max 8 Minuten pro Gruppe)</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Ergebnisübersicht</h2>
+				<table id="llmresults">
+					<tr>
+						<td></td>
+						<th scope="col">o3-mini (K)</th>
+						<th scope="col">Claude Sonnett (C)</th>
+						<th scope="col"><a href="https://mistral.ai/">mistral-small-2501</a></th>
+					</tr>
+					<tr>
+						<th scope="row">Semant HTML</th>
+						<td>✅</td>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Valides HTML</th>
+						<td>✅</td>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Mod JS</th>
+						<td>✅</td>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Clean Code</th>
+						<td>✅</td>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">D&amp;D Feedback</th>
+						<td>✅</td>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Respon Design</th>
+						<td>✅</td>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Ergebnisübersicht</h2>
+				<table id="llmresults">
+					<tr>
+						<td></td>
+						<th scope="col"><a href="https://chat.deepseek.com">DeepSeek-R1 (A)</a></th>
+						<th scope="col">Gemini2 "G:D"</th>
+					</tr>
+					<tr>
+						<th scope="row">Semant HTML</th>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Valides HTML</th>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Mod JS</th>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">Clean Code</th>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+					<tr>
+						<th scope="row">D&amp;D Feedback</th>
+						<td>✅</td>
+						<td>🧐</td>
+					</tr>
+					<tr>
+						<th scope="row">Respon Design</th>
+						<td>✅</td>
+						<td>✅</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<section>
+					<h2>Template: ChatGPT (o3-mini)</h2>
+					<textarea class="prompts">
+Optional: Prompt um Prompt zu Generieren
+
+Final promot: Create a website that...
+					</textarea>
+				</section>
+				<section>
+					<h2>Template: ChatGPT (o3-mini)</h2>
+					<iframe data-src="./ergebnisse/template-gruppe-z-chatgpt-o3-mini/index.html"></iframe>
+				</section>
+				<section>
+					<h2>Template: ChatGPT (o3-mini)</h2>
+					<ul>
+						<li>Semantisches HTML<br>sections</li>
+						<li>Valides HTML<br><a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fchr1shaefn3r-dhbw.gitlab.io%2Fvorlesung-webeng1%2FTINF24B2%2Fprompt-engineering%2Fergebnisse%2Ftemplate-gruppe-z-chatgpt-o3-mini%2F/index.html">validator@ergebnisse/template-gruppe-z-chatgpt-o3-mini/</a></li>
+						<li>Modernes JavaScript (kein var, etc.)<br>Check</li>
+						<li>Clean Code<br>Sprechende Variablen und Funktionsnamen</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Template: ChatGPT (o3-mini)</h2>
+					<ul>
+						<li>Drag&Drop Feedback (Dropzones hervorheben, etc.)<br>Dropzones mit blauem Rahmen hervorgehoben</li>
+						<li>minimale L&ouml;sung (kein Framework, keine Umwege)<br>Check</li>
+						<li>Responsive Design (Handy, Tablet, Desktop)<br>Check</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Gruppe K: ChatGPT (o3-mini)</h2>
+					<h3>Prompt um Prompt zu generieren</h3>
+					<textarea style="width: 90%; min-height: 200px">
+Erstelle mir eine Prompt welche folgende Aufgabe in javascript umsetzen soll 
+	Kanban-Board mit:
+		-Drei Spalten: "ToDo", "In Progress", "Done"
+		-Drei Karten-Arten:"Bug" (rot), "User Story" (grün), "Task" (blau)
+		-Zwei Karten-Eigenschaen: Titel, Beschreibung,
+		-Arbeitspacketgröße in Stunden
+		-Erstellen und löschen von Karten
+		-Verschieben von Karten per Drag&Drop
+		-Dunkles Responsive Layout/Design
+					</textarea>
+				</section>
+				<section>
+					<h2>Gruppe K: ChatGPT (o3-mini)</h2>
+					<h3 id="final-prompt">Final Prompt</h3>
+					<textarea style="width: 100%; min-height: 400px">
+Erstelle eine Kanban-Board-Anwendung in JavaScript mit folgenden Anforderungen:
+
+1. **Spalten:**
+	- Drei Spalten: &quot;ToDo&quot;, &quot;In Progress&quot;, &quot;Done&quot;
+	- Jede Spalte soll als Container für Karten fungieren.
+
+2. **Karten-Arten:**
+	- Es gibt drei Arten von Karten:
+		- &quot;Bug&quot; (rot)
+		- &quot;User Story&quot; (grün)
+		- &quot;Task&quot; (blau)
+	- Karten sollen dynamisch hinzugefügt werden können, wobei der Kartentyp ausgewählt wird (Bug, User Story, oder Task).
+
+3. **Karten-Eigenschaften:**
+	- Jede Karte soll die folgenden Eigenschaften haben:
+		- **Titel** (Textfeld für den Titel der Aufgabe)
+		- **Beschreibung** (Textfeld für eine detaillierte Beschreibung)
+		- **Arbeitspaketgröße in Stunden** (Zahl, die die geschätzte Zeit für die Aufgabe in Stunden darstellt)
+
+4. **Interaktive Funktionen:**
+	- **Erstellen von Karten**: Benutzer können neue Karten mit den oben genannten Eigenschaften in jeder der drei Spalten 
+	erstellen.
+	- **Löschen von Karten**: Jede Karte soll eine Löschoption haben, um sie zu entfernen.
+	- **Verschieben von Karten**: Karten sollen per Drag &amp; Drop zwischen den Spalten verschoben werden können. Hierbei sollen 
+	die Dropzones hervogehoben werden, damit der Nutzer diese leichter erkennt 
+						
+5. **Design und Layout:**
+	- **Dunkles Design**: Die Benutzeroberfläche soll ein dunkles Theme haben, mit passenden Farben für Hintergrund, Karten 
+	und Text.
+	- **Responsive Layout**: Das Layout soll responsiv sein, sodass es auf verschiedenen Bildschirmgrößen gut funktioniert, 
+	einschließlich mobilen Geräten.
+						
+6. **Technische Anforderungen:**
+	- Der HTML-Code soll semantisch sein, also keine divs enthalten
+	- Achte bitte unbedingt darauf, dass alle angegebenen funktionen auch korrekt ausgeführt werden können
+	- Verwende HTML, CSS und JavaScript (optional: mit einer Bibliothek wie dragula.js für Drag&amp;Drop).
+	- Nutze ein flexibles Grid-System (z.B. CSS Flexbox oder CSS Grid), um die Spalten und Karten korrekt auszurichten und 
+	das Layout anzupassen.
+	- Verwende JavaScript, um dynamisch Karten zu erstellen, zu löschen und zu verschieben.
+	- Das verschieben von Karten soll eine flüssige animation haben, um die Seite grundsätzlich ansprechender aussehen 
+	zu lassen.
+					</textarea>
+				</section>
+				<section>
+					<h2>Gruppe K: ChatGPT (o3-mini)</h2>
+					<iframe style="width: 100%; min-height: 450px"
+						data-src="https://chr1shaefn3r-dhbw.gitlab.io/vorlesung-webeng1/TINF24B2/prompt-engineering/ergebnisse/gruppe-k-chatgpt-o3-mini/index.html"></iframe>
+				</section>
+				<section>
+					<h2>Gruppe K: ChatGPT (o3-mini)</h2>
+					<ul>
+						<li>Semantisches HTML<br>✅ Sections</li>
+						<li>Valides HTML<br><a href="https://validator.w3.org/nu/?showsource=yes&doc=https%3A%2F%2Fchr1shaefn3r-dhbw.gitlab.io%2Fvorlesung-webeng1%2FTINF24B2%2Fprompt-engineering%2Fergebnisse%2Fgruppe-k-chatgpt-o3-mini%2Findex.html">validator@ergebnisse/gruppe-k-chatgpt-o3-mini/</a></li>
+						<li>Modernes JavaScript (kein var, etc.)<br>✅ Check</li>
+						<li>Clean Code<br>✅ Alles durchkommentiert, ansprechende Funktionsnamen, sieht gut aus</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Gruppe K: ChatGPT (o3-mini)</h2>
+					<ul>
+						<li>Drag&Drop Feedback (Dropzones hervorheben, etc.)<br>✅ Dropzone leuchtet grau auf</li>
+						<li>minimale L&ouml;sung<br>✅ Check (keine Frameworks, alles in einer Datei)</li>
+						<li>Responsive Design (Handy, Tablet, Desktop)<br>✅ Check, Mit Android und Apple Geräten getestet</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Gruppe C: Claude 3.7 Sonnet</h2>
+					<p style="font-weight: bold;font-size: xx-large; text-align: left;">Prompt um Prompt zu Generieren:</p>
+					<textarea class="prompts">
+You are an expert for prompt engineering. The following prompt contains instructions for a canban-board which should be used in real life. Please rework my prompt to optimize the result:
+You are an expert for webengineering. Your task is to create a Kanban-board with the following features: "" Feature 1: Three columns with the title "ToDo", "In Progress", "Done" "" Feature 2: Three different styles of notes "Bug" (color red), "User Story" (green), "Task" (blue) ) "" Feature 3: Each note should have a title, a discription and the estimated time requiered to fullfill the task in hours "" Feature 4: The user should be able to easily create and delete new sheets and move them via drag-and-drop "" Feature 5: The design should be responsive """" Important: I want you to use HTML, CSS and JavaScript, please don´t use any kind of frameworks and try to keep the code modern and clean
+
+
+					</textarea>
+				</section>
+				<section>
+					<h2>Claude 3.7 Sonnet</h2>
+					<p style="font-weight: bold;font-size: xx-large; text-align: left;">Generierter Prompt:</p>
+
+					<textarea class="prompts">
+# Task: Create a Vanilla JavaScript Kanban Board Implementation
+## Context
+You are tasked with creating a modern, framework-free Kanban board implementation using only vanilla web technologies. The solution should be production-ready, accessible, and follow modern web development best practices.
+## Technical Requirements
+- Use only vanilla HTML5, CSS3, and ES6+ JavaScript
+- No external libraries, frameworks, or dependencies
+- Cross-browser compatible (Chrome, Firefox, Safari, Edge)
+- Mobile-first responsive design
+- Semantic HTML markup
+- ARIA attributes for accessibility
+## Core Features
+### 1. Board Structure
+- Create three columns with the following properties:
+	- Column titles: "To Do", "In Progress", "Done"
+	- Each column should be equally spaced
+	- Visual separation between columns
+	- Column headers should be sticky when scrolling
+### 2. Card Types
+Implement three distinct card types with the following specifications:
+1. Bug Reports
+	- Background color: #ffebee (light red)
+	- Border: 2px solid #ef5350 (darker red)
+	- Icon: Bug icon (UTF-8 character or SVG)
+2. User Stories
+	- Background color: #e8f5e9 (light green)
+	- Border: 2px solid #66bb6a (darker green)
+	- Icon: User icon (UTF-8 character or SVG)
+3. Tasks
+	- Background color: #e3f2fd (light blue)
+	- Border: 2px solid #42a5f5 (darker blue)
+	- Icon: Checkbox icon (UTF-8 character or SVG)
+### 3. Card Properties
+Each card must include:
+- Title field (required, max 50 characters)
+- Description field (required, supports basic markdown, max 200 characters)
+- Estimated hours field (required, numeric, 0.5-100 hours)
+- Creation timestamp
+- Card type indicator
+- Delete button
+- Visual feedback for dragging state
+### 4. Interaction Requirements
+- Implement drag-and-drop using the HTML5 Drag and Drop API
+- Add new card functionality:
+	- Floating action button or '+' button in each column
+	- Modal form for card creation
+	- Form validation for required fields
+- Delete functionality:
+	- Confirmation dialog before deletion
+	- Visual feedback during deletion
+- Persist board state in localStorage
+### 5. Responsive Design Requirements
+- Breakpoints:
+	- Mobile: 320px - 768px (single column view)
+	- Tablet: 769px - 1024px (two column view)
+	- Desktop: 1025px+ (three column view)
+- Touch support for mobile devices
+- Maintain usability across all viewport sizes
+## Additional Specifications
+- Implement smooth animations for drag-and-drop operations
+- Include loading states and error handling
+- Implement undo/redo functionality for card movements
+- Ensure all interactive elements have hover and focus states
+- Add keyboard navigation support
+## Expected Deliverables
+1. HTML structure with semantic markup
+2. CSS styles with modern layout techniques (Grid/Flexbox)
+3. JavaScript modules implementing all functionality
+4. Comments explaining complex logic
+5. Basic documentation for usage and maintenance
+## Performance Requirements
+- No visible performance lag with 50+ cards
+- Smooth animations running at 60fps
+- Efficient DOM manipulation
+- Optimized event listeners
+Please provide the complete implementation with separate sections for HTML, CSS, and JavaScript code, along with explanatory comments.
+
+					</textarea>
+				</section>
+				
+				
+				<section>
+					<h2>Claude 3.7 Sonnet</h2>
+					<p style="font-weight: bold;font-size: xx-large; text-align: left;">Ergebnis:</p>
+
+					<iframe style="height: 60vh" data-src="../.././TINF24B2/prompt-engineering/ergebnisse/gruppe_c_claude_3.7_sonnet/Kanban.html"></iframe>
+				</section>
+				<section>
+					<h2>Claude 3.7 Sonnet</h2>
+					<ul>
+						<li>Semantisches HTML<br>sections</li>
+						<li>Valides HTML<br><a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fchr1shaefn3r-dhbw.gitlab.io%2Fvorlesung-webeng1%2FTINF24B2%2Fprompt-engineering%2Fergebnisse%2Fgruppe_c_claude_3.7_sonnet%2FKanban.html">validator@ergebnisse/gruppe_c_claude_3.7_sonnet/</a></li>
+						<li>Modernes JavaScript (kein var, etc.)<br>Check</li>
+						<li>Clean Code<br>Sprechende Variablen und Funktionsnamen</li>
+					</ul>
+				</section>
+				<section>
+					<h2>Claude 3.7 Sonnet</h2>
+					<ul>
+						<li>Drag&Drop Feedback (Dropzones hervorheben, etc.)<br>Dropzones mit blauem Rahmen hervorgehoben</li>
+						<li>minimale L&ouml;sung (kein Framework, keine Umwege)<br>Check</li>
+						<li>Responsive Design (Handy, Tablet, Desktop)<br>Check</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+				  <h2>Mistral Small (mistral-small-2501)</h2>
+				  <textarea class="prompts">
+Design a modern webpage with a kanban board:
+Three columns: “ToDo”, “In Progress”, “Done” 
+Three card types: “Bug” (red), “User Story” (green), “Task” (blue)  
+Two card properties: title, description, Work package size in hours  
+Creating cards in a dialog window 
+Deleting cards 
+Moving maps via drag and drop 
+Responsive layout/design  
+Quality:  
+Semantic HTML  
+Valid HTML (Pay attention and avoid this possible error: The first child option element of a select element with a required attribute, and without a multiple attribute, and without a size attribute whose value is greater than 1, must have either an empty value attribute, or must have no text content. Consider either adding a placeholder option label, or adding a size attribute with a value equal to the number of option elements.)
+Modern JavaScript (no var, etc.)  
+Clean code  
+Drag&Drop feedback (highlight drop zones with different colors and avoid bugs (The columns should be highlighted in different colors when you hover over them with a card to indicate where you can drop it. That´s a key feature. It should work even if there is already a card in this column. If you don't hover over it, the color should disappear) --> that is very important!)  
+minimal solution (no framework, no detours, no external sources)
+Responsive design (mobile phone, tablet, desktop) --> also very important
+				  </textarea>
+				</section>
+				<section>
+				  <h2>Mistral Small (mistral-small-2501)</h2>
+				  <iframe
+					data-src="./ergebnisse/gruppe-j-mistral-small-2501/index.html"
+				  ></iframe>
+				</section>
+				<section>
+				  <h2>Mistral Small (mistral-small-2501)</h2>
+				  <ul>
+					<li>Semantisches HTML<br />sections</li>
+					<li>
+					  Valides HTML<br /><a
+						href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fchr1shaefn3r-dhbw.gitlab.io%2Fvorlesung-webeng1%2FTINF24B2%2Fprompt-engineering%2Fergebnisse%2Fgruppe-j-mistral-small-2501%2F/index.html"
+						>validator@ergebnisse/gruppe-j-mistral/</a
+					  >
+					</li>
+					<li>Modernes JavaScript (kein var, etc.)<br />✅</li>
+					<li>
+					  Clean Code<br />Sprechende Variablen und Funktionsnamen ✅
+					</li>
+				  </ul>
+				</section>
+				<section>
+				  <h2>Mistral Small (mistral-small-2501)</h2>
+				  <ul>
+					<li>
+					  Drag&Drop Feedback (Dropzones hervorheben, etc.)<br />Dropzones
+					  werden farbig hervorgehoben ✅
+					</li>
+					<li>
+					  minimale L&ouml;sung (kein Framework, keine Umwege)<br />✅
+					</li>
+					<li>Responsive Design (Handy, Tablet, Desktop)<br />✅</li>
+				  </ul>
+				</section>
+			</section>
+			<section>
+
+				<section>
+					<h2>Gruppe A: DeepSeek-R1</h2>
+					<h3>Vorbereitung der Prompt-Generierung</h3>
+					<textarea class="prompts">
+Lies diesen Text zum Prompt Engineering und verstehe ihn. "Prompt Engineering umfasst verschiedene Techniken und Methoden zur Optimierung von Eingabeaufforderungen für generative KI-Werkzeuge. Wir erklären den Begriff genauer und zeigen Beispiele und Best Practices.
+
+Die richtige Formulierung von Prompts für KI-Werkzeuge ist entscheidend, um das volle Potenzial von Sprachmodellen auszuschöpfen. Mit der stetigen Weiterentwicklung von künstlicher Intelligenz ist auch der Bedarf an Fachkräften gestiegen, die wissen, wie man diese am effizientesten steuern kann. Dadurch ist der Beruf des Prompt Engineers entstanden.
+	
+Was ist Prompt Engineering?
+Der Begriff „Prompt Engineering“ bezieht sich auf Techniken und Methoden zur Optimierung der Eingabeaufforderung (engl. prompt) für Natural Language Processing (NLP) und Large Language Models (LLMs) wie GPT-3 oder GPT-4, die auf Machine Learning beruhen. Ziel ist es, bessere, präzisere oder spezifischere Antworten zu erhalten, da die Art, wie eine Frage oder eine Anweisung formuliert wird, großen Einfluss auf die Qualität und Relevanz der Antwort einer künstlichen Intelligenz hat.
+	
+IONOS AI Model Hub
+Erste deutsche, multimodale KI-Plattform
+100 % DSGVO-konform und sicher in Deutschland gehostet
+Die leistungsstärksten KI-Modelle auf einer Plattform
+Kein Vendor Lock-in durch Open Source
+Prompt Engineering für AI-Modelle erfordert neben Kreativität und Präzision auch ein umfangreiches Verständnis für das jeweilige Sprachmodell, denn die Wahl der Wörter und ihre Reihenfolge können die Ausgabe erheblich verändern. Die Prompts können Text in natürlicher Sprache, Bilder oder andere Arten von Dateneingaben enthalten. Dabei kann derselbe Prompt auf verschiedenen KI-Plattformen zu unterschiedlichen Ergebnissen führen. Daher muss Prompt Engineering bei jedem KI-Text-Generator oder KI-Video-Generator individuell durchgeführt werden.
+	
+Warum ist Prompt Engineering wichtig für AI?
+Prompt Engineering ist unerlässlich, um das Potenzial von Sprachmodellen voll auszuschöpfen und dadurch bessere Ergebnisse mit generativer AI zu erzielen. Ein Prompt Engineer kann beispielsweise mit verschiedenen Möglichkeiten experimentieren, eine Frage zu formulieren, um herauszufinden, wie diese in einem bestimmten Stil und innerhalb verschiedener Einschränkungen die Antwort beeinflusst. Variationen in der Wortfolge und die einmalige oder mehrfache Verwendung eines einzelnen Modifikators wie z. B. „sehr“ oder „sehr, sehr, sehr“ können das Ergebnis erheblich beeinflussen.
+	
+Bei KI-Bild-Websites kann Prompt Engineering bei der Feinabstimmung verschiedener Merkmale der generierten Bilder helfen. Diese bieten häufig die Möglichkeit, KI-Bilder in einem bestimmten Stil, einer bestimmten Perspektive, einem bestimmten Seitenverhältnis oder einer bestimmten Bildauflösung zu erstellen. Die erste Eingabeaufforderung ist in der Regel nur ein Ausgangspunkt. Mit den folgenden Eingabeaufforderungen können z. B. bestimmte Elemente abgeschwächt oder verstärkt und Objekte in einem Bild hinzugefügt oder entfernt werden.
+	
+Auch bei der Entwicklung neuer Tools kann Prompt Engineering dabei helfen, LLMs abzustimmen und Arbeitsabläufe für bestimmte Ergebnisse zu optimieren. Daneben gibt es noch weitere Gründe, warum Prompt Engineering wichtig für AI ist:
+	
+Ergebnisse optimieren: Durch sorgfältig gestaltetes Prompt Engineering können Sprachmodelle hochwertigere und relevantere Ergebnisse liefern.
+Effizienz: Gut formulierte Prompts führen dazu, dass ein Modell die gewünschte Information schneller liefert, ohne dass mehrere Prompts oder Iterationen erforderlich sind.
+Kontrolle über den Output: Durch geschicktes Prompt Engineering kann der Benutzer bzw. die Benutzerin die Art steuern, wie die KI antwortet, einschließlich der Länge, des Stils und des Tons der Antwort.
+Reduzierung von Fehlern: Klare und präzise Prompts tragen dazu bei, mögliche Voreingenommenheit, Missverständnisse oder ungenaue Antworten, die ein Modell geben könnte, zu minimieren.
+Erweiterte Anwendungsmöglichkeiten: Mit dem richtigen Prompt Engineering können KI-Modelle für spezifische Aufgaben oder in speziellen Domänen eingesetzt werden, für die sie ursprünglich nicht entwickelt wurden.
+Experimentelle Erkenntnisse: Das Experimentieren mit verschiedenen Prompts kann dazu beitragen, ein tieferes Verständnis dafür zu erlangen, wie eine bestimmte generative AI funktioniert und wie diese auf verschiedene Eingaben reagiert.
+20250113_SEO_DG_Inside_AI_Model_Hub_free_Desktop-960x320__DE.png
+Prompt Engineering: Beispiele
+Prompts, die man für die Erstellung von Text, Bildern oder Videos verwenden kann, unterscheiden sich deutlich voneinander. Für alle KI-Websites gilt dabei jedoch, dass durch gezieltes Prompt Engineering Nutzende effektiver mit dem jeweiligen KI-Tool interagieren können.
+	
+Prompt-Beispiele für Text-Generatoren
+Gezieltes Prompt Engineering für Text-Generatoren kann wie folgt aussehen:
+	
+Spezifität
+ursprünglicher Prompt: „Erzähl mir etwas über Bäume“.
+verbesserter Prompt: „Erkläre mir den Prozess der Fotosynthese bei Laubbäumen.“
+Formatierung der Antworten
+ursprünglicher Prompt: „Was sind die Vorteile der Sonnenenergie?“
+verbesserter Prompt: „Nenne fünf Vorteile der Solarenergie.“
+Einfügen von Beispielantworten
+ursprünglicher Prompt: „Schreibe einen Satz über Paris.“
+verbesserter Prompt: „Schreibe einen Satz über Paris im Stil von Hemingway.“
+Länge und Details
+ursprünglicher Prompt: „Beschreibe Wasser.“
+verbesserter Prompt: „Gib mir eine detaillierte wissenschaftliche Erklärung der Molekularstruktur von Wasser.“
+Vermeidung von Vorurteilen
+ursprünglicher Prompt: „Was hältst du von Kryptowährungen?“
+verbesserter Prompt: „Beschreibe Kryptowährungen neutral und objektiv.“
+Kontext
+ursprünglicher Prompt: „Warum fallen Aktien?“
+verbesserter Prompt: „Unter Berücksichtigung wirtschaftlicher Faktoren, warum könnten Technologieaktien in einer Rezession fallen?“
+Stile oder Perspektiven
+ursprünglicher Prompt: „Erzähle mir die Geschichte von Napoleon.“
+verbesserter Prompt: „Erzähle mir die Geschichte von Napoleon aus der Perspektive eines seiner Soldaten.“
+Prompt-Beispiele für Bild-Generatoren
+Prompt Engineering ist nicht nur für Sprachmodelle relevant, sondern auch für Generative Adversarial Networks, die Bilder generieren, wie z. B. DALL-E. Bei Bild-Generatoren müssen Prompts textuell beschreiben, was für ein Bild erzeugt werden soll:
+	
+Spezifität
+ursprünglicher Prompt: „Katze.“
+verbesserter Prompt: „Schlafende orange Katze auf blauem Kissen.“
+Kombination von Elementen
+ursprünglicher Prompt: „Gebäude und Wolken.“
+verbesserter Prompt: „Ein altes viktorianisches Haus, das auf schwebenden Wolken ruht.“
+Stil und Epoche
+ursprünglicher Prompt: „Autos.“
+verbesserter Prompt: „Futuristische Autos im Retrostil der 1950er Jahre.“
+Gefühle und Atmosphäre
+ursprünglicher Prompt: „Wald.“
+verbesserter Prompt: „Ein dunkler, nebliger Wald im Mondschein.“
+Kombination ungewöhnlicher Elemente
+ursprünglicher Prompt: „Tisch und Früchte.“
+verbesserter Prompt: „Ein Tisch aus Wassermelonen mit einer Platte aus getrockneten Bananenscheiben.“
+Perspektive und Dimension
+ursprünglicher Prompt: „Berge.“
+verbesserter Prompt: „Ein riesiger Berg in Form eines umgedrehten Teeglases.“
+Abstraktion
+ursprünglicher Prompt: „Gefühle.“
+verbesserter Prompt: „Visualisierung von Freude als leuchtende Farbexplosion.“
+Prompt-Beispiele für Video-Generatoren
+Bei Video-Generatoren besteht die Herausforderung im Prompt Engineering darin, nicht nur einen einzelnen Moment oder ein Standbild zu erfassen, sondern eine dynamische, zeitgesteuerte Sequenz von Aktionen und Ereignissen. Gutes Prompt Engineering hilft dabei, die gewünschte Aktion, die Umgebung, die Dauer und die Interaktionen der Elemente im Video genau zu spezifizieren:
+	
+Handlungsablauf
+ursprünglicher Prompt: „Katze läuft.“
+verbesserter Prompt: „Orangefarbene Katze, die langsam an einer Pfütze vorbeigeht und dann hineinspringt.“
+Umgebung und Stimmung
+ursprünglicher Prompt: „Strandszene.“
+verbesserter Prompt: „Ein einsamer Strand bei Sonnenuntergang, mit sanft brechenden Wellen und einer Gruppe von Vögeln, die am Horizont fliegen.“
+Zeitliche Entwicklung
+ursprünglicher Prompt: „Eine wachsende Blume.“
+verbesserter Prompt: „Eine Rose, die in 30 Sekunden von einer Knospe zu einer voll erblühten Blume wächst.“
+Dynamische Aktionen
+ursprünglicher Prompt: „Sportspiel.“
+verbesserter Prompt: „Ein Basketballspiel, bei dem ein Spieler in den letzten Sekunden des Spiels einen entscheidenden Dreipunktewurf macht.“
+Kombination von Elementen und Übergängen
+ursprünglicher Prompt: „Tageszeiten.“
+verbesserter Prompt: „Ein Stadtpanorama, das vom Morgen in die Nacht übergeht, wobei die Lichter der Stadt bei Einbruch der Dunkelheit angehen.“
+Geschichte und Erzählung
+ursprünglicher Prompt: „Ein Vogel fliegt.“
+verbesserter Prompt: „Ein junger Vogel, der zum ersten Mal versucht zu fliegen, nach einigen Fehlversuchen schließlich die Lüfte erobert und sicher in sein Nest zurückkehrt.“
+Best Practices für Prompt Engineering
+Mit gezieltem Prompt Engineering lassen sich optimale Ergebnisse aus generativen KI-Tools erzielen. Dabei gibt es einige bewährte Best Practices, die bei der Formulierung von Prompts berücksichtigt werden sollten:
+	
+Präzise sein: Klarheit in der Formulierung eines Prompts hilft der KI, besser zu verstehen, was von ihr erwartet wird.
+Spezifisch sein: Stellen Sie sicher, dass Ihre Prompts spezifisch genug sind, um die Art der gewünschten Antwort zu steuern.
+Experimentieren: Wenn Sie nicht sofort die gewünschte Antwort erhalten, versuchen Sie, die Frage anders zu formulieren oder mehr Kontext hinzuzufügen.
+Formatierungsanweisungen: Wenn Sie möchten, dass die Antwort in einem bestimmten Format (z. B. Liste, kurzer Absatz, formale Sprache) gegeben wird, sollten Sie dies in der Eingabeaufforderung angeben.
+Beispielantworten: Es kann hilfreich sein, der KI ein Beispiel für die gewünschte Antwort zu geben, um diese in die richtige Richtung zu lenken.
+Kontext: Einige KIs profitieren von zusätzlichen Informationen oder einem längeren Kontext, der vor der eigentlichen Frage gegeben wird.
+Mehrdeutigkeit vermeiden: Vermeiden Sie unklare oder mehrdeutige Formulierungen.
+Begrenzen und lenken: Wenn Sie befürchten, dass die KI voreingenommen antworten könnte, oder wenn Sie einen bestimmten Stil oder eine bestimmte Perspektive wünschen, geben Sie klare Anweisungen.
+Überprüfen: Es ist wichtig, die Antworten einer KI kritisch zu überprüfen und sicherzustellen, dass sie sowohl genau als auch frei von unerwünschten Vorurteilen sind.
+Iterativer Ansatz: Häufig ist es sinnvoll, iterativ vorzugehen und die Fragestellung auf der Grundlage der erhaltenen Antworten zu verfeinern."
+					</textarea>
+					<p><a href="https://www.ionos.de/digitalguide/websites/webseiten-erstellen/prompt-engineering/">Quelle des Info-Texts</a></p>
+				</section>
+				<section>
+					<h2>DeepSeek-R1</h2>
+					<h3>Prompt-Generierung</h3>
+					<textarea class="prompts">
+Generiere nun mit deinem Wissen einen Prompt für dich selbst, um das Folgende zu generieren. Denke daran, möglichst spezifisch und klar zu sein, und kein Detail auszulassen. Bitte erstelle das Kanban-Board noch nicht.
+
+Es soll ein Kanban-Board generiert werden. Dieses soll drei Spalten besitzen: „To Do“, „In Progress“ und „Done“. Dazu soll es drei Karten-Arten geben: „Bug“ (rot), „User Story“ (grün) und „Task“ (blau). Auf den Karten soll es drei Angaben geben: „Titel“, „Beschreibung“ und „Arbeitspaketgröße in Stunden“. Die Karten sollen erstellt und gelöscht werden können. Rechts unten am Browserfenster soll fix ein „+ Neue Karte“-Button sein. Nach Klicken auf diesen Button soll ein Kasten im Vordergrund erscheinen, in dem die drei Angaben eingetragen werden können. Karten sollen dann standardmäßig in „To Do“ landen. Gelöscht werden können die Karten mit einer Schaltfläche rechts unten. Die Karten sollen darüber hinaus per Drag&Drop zwischen den drei Spalten verschiebbar sein. Wichtig ist auch, dass es für das Drag&Drop Feedback geben soll, d.h. Dropzones hervorheben, etc. Das Layout und Design soll generell responsiv sein.
+
+Folgende weitere Bedingungen gelten: Das HTML soll semantisch sein (Also bspw. sections benutzen; die sections müssen aber Headings (zwischen h2 und h6) haben); das HTML soll „genormt“ sein, also dem Standard entsprechen; das JavaScript soll modern sein (also kein var etc.); und der Code soll allgemein clean sein (also sprechende Variablen und Funktionsnamen).
+Du sollst kein Framework und sonstige Umwege verwenden.
+					</textarea>
+				</section>
+				<section>
+					<h2>DeepSeek-R1</h2>
+					<h3>Finaler Prompt</h3>
+					<textarea class="prompts">
+Erstelle ein **Kanban-Board** mit den folgenden Anforderungen:
+
+### **Allgemeine Struktur**
+1. **Spalten**: Das Board soll drei Spalten haben:
+   - **To Do**
+   - **In Progress**
+   - **Done**
+2. **Karten-Typen**: Es gibt drei Arten von Karten, die farblich unterschieden werden:
+   - **Bug** (rot)
+   - **User Story** (grün)
+   - **Task** (blau)
+3. **Karten-Inhalte**: Jede Karte soll folgende Angaben enthalten:
+   - **Titel** (kurze Überschrift)
+   - **Beschreibung** (detaillierte Beschreibung der Aufgabe)
+   - **Arbeitspaketgröße in Stunden** (numerischer Wert)
+
+### **Funktionalitäten**
+1. **Karten erstellen**:
+   - Es soll einen fixen Button **„+ Neue Karte“** rechts unten im Browserfenster geben.
+   - Beim Klicken auf diesen Button öffnet sich ein **Overlay** (ein Kasten im Vordergrund), in dem die drei Angaben (**Titel**, **Beschreibung**, **Arbeitspaketgröße in Stunden**) eingegeben werden können.
+   - Nach dem Absenden wird die Karte **standardmäßig in der Spalte „To Do“** angelegt.
+2. **Karten löschen**:
+   - Jede Karte soll eine **Lösch-Schaltfläche** (z. B. ein Mülleimer-Icon) rechts unten auf der Karte haben.
+   - Beim Klicken auf diese Schaltfläche wird die Karte entfernt.
+3. **Drag & Drop**:
+   - Karten sollen **per Drag & Drop zwischen den drei Spalten** verschoben werden können.
+   - Es soll **Feedback** während des Drag & Drop geben:
+     - **Dropzones** (Spalten) sollen sich hervorheben, wenn eine Karte darüber geschoben wird.
+     - Die Karte soll visuell anzeigen, wo sie platziert wird (z. B. durch eine helle Umrandung oder Schatteneffekt).
+4. **Responsives Design**:
+   - Das Layout und Design soll **responsiv** sein, d. h., es soll sich an verschiedene Bildschirmgrößen anpassen (Desktop, Tablet, Mobile).
+
+### **Technische Anforderungen**
+1. **HTML**:
+   - Das HTML soll **semantisch** sein:
+     - Verwende **`<section>`**-Elemente für die Spalten, und gib jedem `<section>`-Element ein **Heading** (zwischen `<h2>` und `<h6>`).
+     - Verwende **sprechende IDs und Klassen**.
+   - Der Code soll **dem HTML-Standard entsprechen** (keine veralteten oder nicht standardkonformen Elemente oder Attribute).
+2. **JavaScript**:
+   - Der Code soll **modern** sein:
+     - Verwende **`let`** und **`const`** statt `var`.
+     - Verwende **arrow functions**, **template literals** und andere moderne JS-Features.
+   - Der Code soll **clean** und gut strukturiert sein:
+     - Verwende **sprechende Variablen- und Funktionsnamen**.
+     - Vermeide redundanten oder unleserlichen Code.
+3. **CSS**:
+   - Das Design soll **einfach und übersichtlich** sein.
+   - Verwende **Flexbox** oder **Grid** für das Layout der Spalten und Karten.
+   - Achte auf **konsistente Abstände, Farben und Schriftgrößen**.
+
+### **Beispiel für eine Karte**
+- **Typ**: Bug (rot)
+- **Titel**: „Login-Button funktioniert nicht“
+- **Beschreibung**: „Der Login-Button auf der Startseite reagiert nicht auf Klicks.“
+- **Arbeitspaketgröße**: 2 Stunden
+
+### **Beispiel für das Overlay**
+- **Titel**: Eingabefeld (Pflichtfeld)
+- **Beschreibung**: Textarea (Pflichtfeld)
+- **Arbeitspaketgröße**: Numerisches Eingabefeld (Pflichtfeld)
+- **Buttons**: „Abbrechen“ und „Speichern“
+
+### **Zusätzliche Hinweise**
+- Achte darauf, dass der Code **gut dokumentiert** ist (z. B. mit Kommentaren, wo nötig).
+- Vermeide die Verwendung von **Frameworks** oder externen Bibliotheken (z. B. jQuery, Bootstrap).
+- Der Code soll **selbsterklärend** und **wartbar** sein.
+					</textarea>
+				</section>
+				<section>
+					<h2>DeepSeek-R1</h2>
+					<iframe data-src="./ergebnisse/gruppe-a-deepseek-r1/index.html"></iframe>
+				</section>
+				<section>
+					<h2>DeepSeek-R1</h2>
+					<ul>
+						<li>Semantisches HTML<br>✅ <code>section</sections></code> wurde verwendet</li>
+						<li>Valides HTML<br>✅ <a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fchr1shaefn3r-dhbw.gitlab.io%2Fvorlesung-webeng1%2FTINF24B2%2Fprompt-engineering%2Fergebnisse%2Fgruppe-a-deepseek-r1%2Findex.html">validator@ergebnisse/gruppe-a-deepseek-r1/</a></li>
+						<li>Modernes JavaScript (kein var, const, Arrow-Functions.)<br>✅</li>
+						<li>Clean Code<br>✅ Sprechende Variablen und Funktionsnamen</li>
+					</ul>
+				</section>
+				<section>
+					<h2>DeepSeek-R1</h2>
+					<ul>
+						<li>Drag&Drop Feedback (Dropzones hervorheben, etc.)<br>✅ Dropzones bei Hovern grau hervorgehoben</li>
+						<li>minimale L&ouml;sung (kein Framework, keine Umwege)<br>✅</li>
+						<li>Responsive Design (Handy, Tablet, Desktop)<br>✅</li>
+					</ul>
+				</section>
+			</section>
+			<!-- Gruppe D -->
+			<section>
+				<section>
+					<h2>Gemini2 Flash Preview (Github Copilot) "G:D"</h2>
+					<textarea class="prompts">
+Final Prompt: 
+
+Erstelle eine Website / Kanban-Board mit folgenden Funktionen: Drei Spalten: "ToDo", "In Progress", "Done"; Drei Karten-Arten: "Bug"(rot), "User Story"(grün), "Task"(blau); Drei Karten-Eigenschaften: Titel, Beschreibung, Arbeitspacketgröße in Stunden; Erstellen und löschen von Karten; Verschieben von Karten per Drag & Drop; Responsive Layout / Design (Die Fläche soll immer ausgenutzt: Großer Bildschirm Spalten Horizontal, Kleiner Bildschirm Spalten Vertikal ); Ansprechendes Layout, Design;
+
+Es sind folgende Qualitätskritereien zu beachten: Semantisches HTML; Valiedes HTML; Modernes JavaScript; Clean Code; Drag & Drop Feedback; Kein Framework; Nur eine Datei / index.html; Responsive Design;
+					</textarea>
+				</section>
+
+				<section>
+					<h2>Gemini2 Flash Preview (Github Copilot) "G:D"</h2>
+					<iframe data-src="./ergebnisse/gruppe-d-gemini2-flash-preview/index.html"></iframe>
+				</section>
+
+				<section>
+					<h2>Gemini2 Flash Preview (Github Copilot) "G:D"</h2>
+					<ul>
+						<li>Semantisches HTML<br>sections</li>
+						<li>Valides HTML<br><a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fchr1shaefn3r-dhbw.gitlab.io%2Fvorlesung-webeng1%2FTINF24B2%2Fprompt-engineering%2Fergebnisse%2Fgruppe-d-gemini2-flash-preview%2F/index.html">validator@ergebnisse/gruppe-d-gemini2-flash-preview/</a></li>
+						<li>Modernes JavaScript (kein var, etc.)<br>Check</li>
+						<li>Clean Code<br>Sprechende Variablen und Funktionsnamen</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Gemini2 Flash Preview (Github Copilot) "G:D"</h2>
+					<ul>
+						<li>Drag&Drop Feedback (Dropzones hervorheben, etc.)<br>Dropzones zwischen Spalten, nicht beim Neuanordnen in einer Spalte</li>
+						<li>minimale L&ouml;sung (kein Framework, keine Umwege)<br>Check</li>
+						<li>Responsive Design (Handy, Tablet, Desktop)<br>Check</li>
+					</ul>
+				</section>
+
+			</section>
+			<!-- Gruppe D -->
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script src="https://code.jquery.com/jquery-3.7.1.slim.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			slideNumber: true,
+			hash: true,
+			pdfSeparateFragments: false,
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+		Reveal.addEventListener('ready', function () {
+			var header = $('#hidden').html();
+			$('.slide-background').append(header);
+		});
+	</script>
+	<script>
+		function toggleDarkmode() {
+			const themeLink = document.getElementById('theme');
+
+			if (themeLink.getAttribute('href') == 'dist/theme/white.css') {
+				themeLink.setAttribute('href', 'dist/theme/black.css');
+			} else {
+				themeLink.setAttribute('href', 'dist/theme/white.css');
+			}
+		}
+	</script>
+	<div id="hidden" style="display:none;">
+		<header style="display: flex; flex-direction: row; align-items: center;">
+			<img style="padding-right: 15px" height="40" src="dhbw-logo-small.svg" alt="DHBW-Logo">
+			<button class="toggleDarkmode" onclick="toggleDarkmode()">&#9788;</button>
+		</header>
+	</div>
+</body>
+
+</html>
