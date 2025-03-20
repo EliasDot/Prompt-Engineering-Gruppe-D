@@ -1,9 +1,0 @@
-
-        <script>
-            const css = document.createElement('link');
-            css.rel = "stylesheet";
-            css.href = "loading-finished.css";
-            document.head.appendChild (css);
-        </script>
-    </body>
-</html>
